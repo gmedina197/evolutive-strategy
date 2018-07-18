@@ -25,7 +25,7 @@ public class Main {
         ExpressionUtils buffer[] = new ExpressionUtils[POP_SIZE];
 
         double sumResult = 0.00;
-        int totalOfGens = 0, cont = 0, contGens = 0;
+        int cont = 0;
 
         ExpressionUtils best;
 
@@ -34,23 +34,20 @@ public class Main {
             setFirstPopulation(population);
 
             while (cont != GEN_SIZE) {
-                contGens++;
                 for (int i = 0; i < 20; i++) {
                     int random1 = (int) (Math.random() * 20 % 20);
                     int random2 = (int) (Math.random() * 20 % 20);
 
                     while (random1 == random2) {
                         random2 = (int) (Math.random() * 20 % 20);
-                    } //seleciona aleatoriamente dois individuos
+                    }
 
                     buffer[i] = duel(population[random1], population[random2]);
                     buffer[i].mutation();
 
-                    if (buffer[i].getfitness() > best.getfitness()) {
-                        best = buffer[i];
-                    }
+                    best = buffer[i].getfitness() > best.getfitness() ? buffer[i] : best;
                 }
-                for (int i = 0; i < 20; i++) {
+                for (int i = 0; i < POP_SIZE; i++) {
                     population[i] = new ExpressionUtils(buffer[i].getX(), buffer[i].getY());
                 }
 
@@ -59,11 +56,8 @@ public class Main {
             sumResult += best.getfitness();
             System.out.println(best.toString());
 
-            totalOfGens += contGens;
-            contGens = 0;
             cont = 0;
         }
-        System.out.println("\nGerações média = " + totalOfGens / 10);
         System.out.println("Resultado Médio : " + (sumResult) / 10.0);
     }
 }
