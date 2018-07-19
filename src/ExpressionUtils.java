@@ -1,4 +1,4 @@
-public class ExpressionUtils {
+public class ExpressionUtils implements Comparable<ExpressionUtils>{
     Double x;
     Double y;
     Double fitness;
@@ -6,6 +6,13 @@ public class ExpressionUtils {
     ExpressionUtils(double x, double y) {
         this.x = x;
         this.y = y;
+
+        this.calcFitness();
+    }
+
+    ExpressionUtils(ExpressionUtils clone){
+        this.x = clone.x;
+        this.y = clone.y;
 
         this.calcFitness();
     }
@@ -20,11 +27,9 @@ public class ExpressionUtils {
         }
     }
 
-    public void mutation(){
-        double s = 0.1;
-
-        double x2 = Math.random() * s * 2 - s;
-        double y2 = Math.random() * s * 2 - s;
+    public void mutation(double sx, double sy){
+        double x2 = Math.random() * sx * 2 - sx;
+        double y2 = Math.random() * sy * 2 - sy;
 
         x2 += this.x;
         y2 += this.y;
@@ -39,6 +44,19 @@ public class ExpressionUtils {
         this.y = y2;
 
         this.calcFitness();
+    }
+
+    @Override
+    public int compareTo(ExpressionUtils o) {
+        if (this.fitness > o.fitness) {
+            return (-1);
+        } else {
+            if (this.fitness < o.fitness) {
+                return (1);
+            } else {
+                return (0);
+            }
+        }
     }
 
     public Double getX() {
