@@ -66,11 +66,11 @@ public class Main {
             cont = 0;
             best = new ExpressionUtils(0.0,0.0);
 
-            while(cont != 50){
+            while(cont != GEN_SIZE){
                 double sensibX = 0.1;
                 double sensibY = 0.1;
 
-                for(int i = 0; i < 20; i++) {
+                for(int i = 0; i < POP_SIZE; i++) {
                     buffer[i] = new ExpressionUtils(population[i]);
                     buffer[i].mutation(sensibX, sensibY);
 
@@ -93,8 +93,128 @@ public class Main {
         System.out.println("Resultado Médio : " + (sumResult) / 10.0);
     }
 
-    public static void evolucionaryGoal() {
-        
+    private static double[] calcSensibility(ExpressionUtils population[]) {
+        double sumX = 0.0;
+        double sumY = 0.0;
+        double sumQX = 0.0;
+        double sumQY = 0.0;
+        double[] retorno = new double[2];
+
+        for (ExpressionUtils gen : population) {
+            sumX += gen.getX();
+            sumY += gen.getY();
+            sumQX += Math.pow(gen.getX(), 2);
+            sumQY += Math.pow(gen.getY(), 2);
+        }
+        double varianceX = 1.0/population.length * (sumQX - Math.pow(sumX, 2)/population.length);
+        double varianceY = 1.0/population.length * (sumQY - Math.pow(sumY, 2)/population.length);
+
+        retorno[0] = varianceX;
+        retorno[1] = varianceY;
+
+        return retorno;
+    }
+
+    private static void evolucionaryGoal() {
+        ExpressionUtils population[] = new ExpressionUtils[20];
+        ExpressionUtils buffer[] = new ExpressionUtils[20];
+        ExpressionUtils best;
+        double sumResult = 0.00;
+        int cont;
+
+        for(int w = 0; w < 10; w++){
+            setFirstPopulation(population);
+            cont = 0;
+            best = new ExpressionUtils(0.0,0.0);
+            while (cont != GEN_SIZE){
+                double[] sensibs = calcSensibility(population);
+                double sensibX = sensibs[0];
+                double sensibY = sensibs[1];
+                for(int i = 0; i < POP_SIZE; i++) {
+                    int indexI = (int) (Math.random()*20 % 20);
+                    int indexJ = (int) (Math.random()*20 % 20);
+
+                    while(indexI == indexJ) {
+                        indexJ = (int) (Math.random()*20 % 20);
+                    }
+
+                    buffer[i] = population[i];
+                    buffer[i].mutation(sensibX,sensibY);
+
+                    best = buffer[i].getfitness() > best.getfitness() ? buffer[i] : best;
+                }
+                Arrays.sort(population);
+                Arrays.sort(buffer);
+                for(int i = 0; i < 10; i++) {
+                    population[i+10] = new ExpressionUtils(buffer[i].getX(),buffer[i].getY()) ;
+                }
+                cont++;
+
+            };
+            sumResult += best.getfitness();
+            System.out.println(best.toString());
+
+        }
+        System.out.println("Resultado médio: " + (sumResult)/10.0);
+    }
+
+    private static void localSearch() {
+        ExpressionUtils population[] = new ExpressionUtils[20];
+        ExpressionUtils buffer[] = new ExpressionUtils[20];
+        ExpressionUtils best;
+        double sumResult = 0.00;
+        ExpressionUtils buffer2[] = new ExpressionUtils[20];
+
+        int cont = 0;
+
+        setFirstPopulation(population);
+        for (int w = 0; w < 10; w++){
+            cont = 0;
+            best = new ExpressionUtils(0.0,0.0);
+            if (w != 0) {
+                for (int w2 = 0; w2 < 20; w2++){
+                    population[w2] = new ExpressionUtils(buffer2[w2]);
+                    population[w2].mutation(1.0, 1.0);
+                }
+            }
+            boolean flag = false;
+            while(cont != GEN_SIZE){
+                double sensibX = 0.1;
+                double sensibY = 0.1;
+                for(int i = 0; i < POP_SIZE; i++) {
+                    int indexI = (int) (Math.random()*20 % 20);
+                    int indexJ = (int) (Math.random()*20 % 20);
+
+                    while(indexI == indexJ) {
+                        indexJ = (int) (Math.random()*20 % 20);
+                    }
+
+                    buffer[i] = population[i];
+                    buffer[i].mutation(sensibX,sensibY);
+
+                    if(buffer[i].getfitness() > best.getfitness()) {
+                        best = new ExpressionUtils(buffer[i].getX(),buffer[i].getY()) ;
+                        flag = true;
+                    }
+                }
+                Arrays.sort(population);
+                Arrays.sort(buffer);
+                for(int i = 0; i < 10; i++) {
+                    population[i+10] = new ExpressionUtils(buffer[i].getX(),buffer[i].getY()) ;
+                }
+                cont++;
+
+            }
+            if (flag){
+                for (int i=0;i<population.length;i++){
+                    buffer2[i] = new ExpressionUtils(population[i].getX(),population[i].getY()) ;
+                }
+            }
+            sumResult += best.getfitness();
+            System.out.println(best.toString());
+        }
+
+        System.out.println("Resultado Médio : " + (sumResult) / 10.0);
     }
 
     private static void setFirstPopulation(ExpressionUtils population[]) {
@@ -108,8 +228,8 @@ public class Main {
 
     public static void main(String[] args) {
         //onePlusOne();
-        MuPlusMu();
-
-
+        //MuPlusMu();
+        //evolucionaryGoal();
+        localSearch();
     }
 }
