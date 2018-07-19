@@ -13,7 +13,30 @@ public class Main {
         }
     }
 
+    private static double[] calcSensibility(ExpressionUtils population[]) {
+        double sumX = 0.0;
+        double sumY = 0.0;
+        double sumQX = 0.0;
+        double sumQY = 0.0;
+        double[] retorno = new double[2];
+
+        for (ExpressionUtils gen : population) {
+            sumX += gen.getX();
+            sumY += gen.getY();
+            sumQX += Math.pow(gen.getX(), 2);
+            sumQY += Math.pow(gen.getY(), 2);
+        }
+        double varianceX = 1.0/population.length * (sumQX - Math.pow(sumX, 2)/population.length);
+        double varianceY = 1.0/population.length * (sumQY - Math.pow(sumY, 2)/population.length);
+
+        retorno[0] = varianceX;
+        retorno[1] = varianceY;
+
+        return retorno;
+    }
+
     private static void onePlusOne(){
+        final long startTime = System.currentTimeMillis();
         ExpressionUtils population[] = new ExpressionUtils[POP_SIZE];
         ExpressionUtils buffer[] = new ExpressionUtils[POP_SIZE];
 
@@ -51,10 +74,13 @@ public class Main {
 
             cont = 0;
         }
-        System.out.println("Resultado Médio : " + (sumResult) / 10.0);
+        System.out.println("Resultado Médio do 1 + 1: " + (sumResult) / 10.0);
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Tempo de execução(ms): " + (endTime - startTime) );
     }
 
     public static void MuPlusMu(){
+        final long startTime = System.currentTimeMillis();
         ExpressionUtils population[] = new ExpressionUtils[20];
         ExpressionUtils buffer[] = new ExpressionUtils[20];
         ExpressionUtils best;
@@ -90,43 +116,27 @@ public class Main {
             sumResult += best.getfitness();
             System.out.println(best.toString());
         }
-        System.out.println("Resultado Médio : " + (sumResult) / 10.0);
-    }
-
-    private static double[] calcSensibility(ExpressionUtils population[]) {
-        double sumX = 0.0;
-        double sumY = 0.0;
-        double sumQX = 0.0;
-        double sumQY = 0.0;
-        double[] retorno = new double[2];
-
-        for (ExpressionUtils gen : population) {
-            sumX += gen.getX();
-            sumY += gen.getY();
-            sumQX += Math.pow(gen.getX(), 2);
-            sumQY += Math.pow(gen.getY(), 2);
-        }
-        double varianceX = 1.0/population.length * (sumQX - Math.pow(sumX, 2)/population.length);
-        double varianceY = 1.0/population.length * (sumQY - Math.pow(sumY, 2)/population.length);
-
-        retorno[0] = varianceX;
-        retorno[1] = varianceY;
-
-        return retorno;
+        System.out.println("Resultado Médio da mu + mu : " + (sumResult) / 10.0);
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Tempo de execução(ms): " + (endTime - startTime) );
     }
 
     private static void evolucionaryGoal() {
+        final long startTime = System.currentTimeMillis();
         ExpressionUtils population[] = new ExpressionUtils[20];
         ExpressionUtils buffer[] = new ExpressionUtils[20];
         ExpressionUtils best;
         double sumResult = 0.00;
         int cont;
+        int totalGen = 0;
+        int bestgen = 0;
 
         for(int w = 0; w < 10; w++){
             setFirstPopulation(population);
             cont = 0;
             best = new ExpressionUtils(0.0,0.0);
             while (cont != GEN_SIZE){
+                totalGen ++;
                 double[] sensibs = calcSensibility(population);
                 double sensibX = sensibs[0];
                 double sensibY = sensibs[1];
@@ -155,10 +165,13 @@ public class Main {
             System.out.println(best.toString());
 
         }
-        System.out.println("Resultado médio: " + (sumResult)/10.0);
+        System.out.println("Resultado médio da meta evolucionaria: " + (sumResult)/10.0);
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Tempo de execução(ms): " + (endTime - startTime) );
     }
 
     private static void localSearch() {
+        final long startTime = System.currentTimeMillis();
         ExpressionUtils population[] = new ExpressionUtils[20];
         ExpressionUtils buffer[] = new ExpressionUtils[20];
         ExpressionUtils best;
@@ -172,7 +185,7 @@ public class Main {
             cont = 0;
             best = new ExpressionUtils(0.0,0.0);
             if (w != 0) {
-                for (int w2 = 0; w2 < 20; w2++){
+                for (int w2 = 0; w2 < POP_SIZE; w2++){
                     population[w2] = new ExpressionUtils(buffer2[w2]);
                     population[w2].mutation(1.0, 1.0);
                 }
@@ -214,7 +227,9 @@ public class Main {
             System.out.println(best.toString());
         }
 
-        System.out.println("Resultado Médio : " + (sumResult) / 10.0);
+        System.out.println("Resultado Médio da busca local: " + (sumResult) / 10.0);
+        final long endTime = System.currentTimeMillis();
+        System.out.println("Tempo de execução(ms): " + (endTime - startTime) );
     }
 
     private static void setFirstPopulation(ExpressionUtils population[]) {
@@ -227,9 +242,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        //onePlusOne();
-        //MuPlusMu();
-        //evolucionaryGoal();
+        onePlusOne();
+        MuPlusMu();
+        evolucionaryGoal();
         localSearch();
     }
 }
